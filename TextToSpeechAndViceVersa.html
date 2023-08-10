@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech Interaction</title>
+</head>
+<body>
+    <h1>Speech Interaction</h1>
+
+    <button id="startListening">Start Listening</button>
+    <button id="stopListening">Stop Listening</button>
+    <button id="speak">Speak</button>
+
+    <div>
+        <p>Spoken Text:</p>
+        <p id="spokenText"></p>
+    </div>
+
+    <div>
+        <p>Text to Speak:</p>
+        <textarea id="textToSpeak" rows="4" cols="50"></textarea>
+    </div>
+
+    <script>
+        const startListeningBtn = document.getElementById("startListening");
+        const stopListeningBtn = document.getElementById("stopListening");
+        const speakBtn = document.getElementById("speak");
+        const spokenText = document.getElementById("spokenText");
+        const textToSpeak = document.getElementById("textToSpeak");
+
+        const recognition = new webkitSpeechRecognition() || new SpeechRecognition();
+        recognition.lang = "en-US";
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        recognition.onresult = event => {
+            const result = event.results[event.results.length - 1];
+            spokenText.textContent = result[0].transcript;
+        };
+
+        recognition.onend = () => {
+            startListeningBtn.disabled = false;
+            stopListeningBtn.disabled = true;
+        };
+
+        startListeningBtn.addEventListener("click", () => {
+            recognition.start();
+            startListeningBtn.disabled = true;
+            stopListeningBtn.disabled = false;
+        });
+
+        stopListeningBtn.addEventListener("click", () => {
+            recognition.stop();
+            startListeningBtn.disabled = false;
+            stopListeningBtn.disabled = true;
+        });
+
+        speakBtn.addEventListener("click", () => {
+            const msg = new SpeechSynthesisUtterance(textToSpeak.value);
+            window.speechSynthesis.speak(msg);
+        });
+    </script>
+</body>
+</html>

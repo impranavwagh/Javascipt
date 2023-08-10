@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Speech to Text</title>
+</head>
+<body>
+    <h1>Speech to Text</h1>
+    <button id="startButton">Start Listening</button>
+    <div id="transcription"></div>
+
+    <script>
+        // Get the required DOM elements
+        const startButton = document.getElementById('startButton');
+        const transcriptionDiv = document.getElementById('transcription');
+
+        // Check if browser supports Web Speech API
+        if ('webkitSpeechRecognition' in window) {
+            const recognition = new webkitSpeechRecognition();
+
+            // Set language for recognition
+            recognition.lang = 'en-US';
+
+            // Set continuous listening
+            recognition.continuous = true;
+
+            // Handle speech recognition results
+            recognition.onresult = event => {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                transcriptionDiv.textContent = transcript;
+            };
+
+            // Handle errors
+            recognition.onerror = event => {
+                console.error('Speech recognition error:', event.error);
+            };
+
+            // Start/stop listening when the button is clicked
+            let isListening = false;
+            startButton.addEventListener('click', () => {
+                if (isListening) {
+                    recognition.stop();
+                    startButton.textContent = 'Start Listening';
+                } else {
+                    recognition.start();
+                    startButton.textContent = 'Stop Listening';
+                }
+                isListening = !isListening;
+            });
+        } else {
+            startButton.disabled = true;
+            startButton.textContent = 'Speech Recognition Not Supported';
+        }
+    </script>
+</body>
+</html>

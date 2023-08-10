@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Fetch Example</title>
+</head>
+<body>
+    <h1>ChatGPT Chatbot</h1>
+    <div id="chat-container">
+        <div id="chat-log"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const apiKey = "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"; // Replace with your actual API key
+        const chatLog = document.getElementById('chat-log');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-btn');
+
+        sendButton.addEventListener('click', sendMessage);
+
+        function appendMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = sender === 'user' ? 'user-message' : 'bot-message';
+            messageDiv.textContent = message;
+            chatLog.appendChild(messageDiv);
+        }
+
+        async function sendMessage() {
+            const userMessage = userInput.value;
+            appendMessage(userMessage, 'user');
+            userInput.value = '';
+
+            const response = await fetch('https://api.openai.com/v1/engines/davinci-codex/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    prompt: userMessage,
+                    max_tokens: 50
+                })
+            });
+
+            const responseData = await response.json();
+            const botMessage = responseData.choices[0].text;
+            appendMessage(botMessage, 'bot');
+        }
+    </script>
+
+    <style>
+        #chat-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .user-message {
+            text-align: right;
+            margin: 10px 0;
+        }
+
+        .bot-message {
+            text-align: left;
+            margin: 10px 0;
+        }
+    </style>
+</body>
+</html>

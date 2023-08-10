@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Photo Capture</title>
+</head>
+<body>
+    <h1>Camera Photo Capture</h1>
+    <video id="camera" autoplay></video>
+    <button id="captureBtn">Capture Photo</button>
+    <button id="stopBtn">Stop Camera</button>
+    <canvas id="photoCanvas" style="display: none;"></canvas>
+    <a id="downloadLink" style="display: none;">Download Photo</a>
+
+    <script>
+        const camera = document.getElementById('camera');
+        const captureBtn = document.getElementById('captureBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const photoCanvas = document.getElementById('photoCanvas');
+        const downloadLink = document.getElementById('downloadLink');
+        let stream; // To hold the camera stream
+
+        // Get user media and display in the video element
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                camera.srcObject = stream;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+            }
+        }
+
+        // Stop the camera stream and hide the video element
+        function stopCamera() {
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                stream = null;
+                camera.srcObject = null;
+                camera.style.display = 'none';
+                stopBtn.style.display = 'none';
+                captureBtn.style.display = 'none';
+            }
+        }
+
+        // Capture photo from video stream and display on canvas
+        function capturePhoto() {
+            photoCanvas.width = camera.videoWidth;
+            photoCanvas.height = camera.videoHeight;
+            photoCanvas.getContext('2d').drawImage(camera, 0, 0, photoCanvas.width, photoCanvas.height);
+
+            // Display the canvas with the captured photo and download link
+            photoCanvas.style.display = 'block';
+            downloadLink.style.display = 'block';
+
+            // Convert canvas image to data URL and set as download link
+            const dataURL = photoCanvas.toDataURL('image/jpeg');
+            downloadLink.href = dataURL;
+            downloadLink.download = 'captured_photo.jpg';
+        }
+
+        // Start the camera when the page loads
+        window.addEventListener('load', () => {
+            startCamera();
+            captureBtn.addEventListener('click', capturePhoto);
+            stopBtn.addEventListener('click', stopCamera);
+        });
+    </script>
+</body>
+</html>
